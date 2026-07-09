@@ -2,6 +2,7 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const { MongoClient } = require('mongodb');
+const { getStore } = require('@netlify/blobs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -392,8 +393,8 @@ function initializeFile(filePath, defaultValue) {
     }
 }
 
-// Only initialize folder and files locally if MONGODB_URI is not set to avoid EROFS error on Netlify
-if (!process.env.MONGODB_URI) {
+// Only initialize folder and files locally if neither MONGODB_URI nor NETLIFY is set to avoid EROFS error on Netlify
+if (!process.env.MONGODB_URI && !process.env.NETLIFY) {
     if (!fs.existsSync(DATA_DIR)) {
         fs.mkdirSync(DATA_DIR, { recursive: true });
     }
@@ -408,7 +409,7 @@ let mongoDb = null;
 
 async function getMongoDb() {
     const uri = process.env.MONGODB_URI;
-    if (!uri) return null; // Fallback to Local Mode (JSON files)
+    if (!uri) return null; // Fallback
     
     if (mongoDb) return mongoDb;
     
@@ -428,15 +429,24 @@ async function getMongoDb() {
 // --- Unified Storage abstraction layer ---
 const Storage = {
     async getSchedules() {
-        const db = await getMongoDb();
-        if (db) {
+        if (process.env.NETLIFY) {
+            console.log('[NETLIFY BLOBS] Fetching schedules...');
+            const store = getStore('msh-content-planner');
+            const data = await store.getJSON('schedules');
+            if (!data) {
+                console.log('[NETLIFY BLOBS] Seeding default schedules');
+                await store.setJSON('schedules', DEFAULT_CONTENT);
+                return DEFAULT_CONTENT;
+            }
+            return data;
+        } else if (process.env.MONGODB_URI) {
+            const db = await getMongoDb();
             const items = await db.collection('schedules').find({}).toArray();
             if (items.length === 0) {
                 console.log('[MONGODB] Seeding empty schedules with defaults');
                 await db.collection('schedules').insertMany(DEFAULT_CONTENT);
                 return DEFAULT_CONTENT;
             }
-            // Map to exclude the MongoDB specific ObjectID
             return items.map(({ _id, ...rest }) => rest);
         } else {
             const raw = fs.readFileSync(SCHEDULES_FILE, 'utf8');
@@ -445,8 +455,12 @@ const Storage = {
     },
 
     async saveSchedules(schedules) {
-        const db = await getMongoDb();
-        if (db) {
+        if (process.env.NETLIFY) {
+            const store = getStore('msh-content-planner');
+            await store.setJSON('schedules', schedules);
+            console.log('[NETLIFY BLOBS] Saved schedules');
+        } else if (process.env.MONGODB_URI) {
+            const db = await getMongoDb();
             await db.collection('schedules').deleteMany({});
             if (schedules.length > 0) {
                 await db.collection('schedules').insertMany(schedules);
@@ -459,8 +473,18 @@ const Storage = {
     },
 
     async getSeries() {
-        const db = await getMongoDb();
-        if (db) {
+        if (process.env.NETLIFY) {
+            console.log('[NETLIFY BLOBS] Fetching series...');
+            const store = getStore('msh-content-planner');
+            const data = await store.getJSON('series');
+            if (!data) {
+                console.log('[NETLIFY BLOBS] Seeding default series');
+                await store.setJSON('series', DEFAULT_SERIES);
+                return DEFAULT_SERIES;
+            }
+            return data;
+        } else if (process.env.MONGODB_URI) {
+            const db = await getMongoDb();
             const items = await db.collection('series').find({}).toArray();
             if (items.length === 0) {
                 console.log('[MONGODB] Seeding empty series with defaults');
@@ -475,8 +499,12 @@ const Storage = {
     },
 
     async saveSeries(series) {
-        const db = await getMongoDb();
-        if (db) {
+        if (process.env.NETLIFY) {
+            const store = getStore('msh-content-planner');
+            await store.setJSON('series', series);
+            console.log('[NETLIFY BLOBS] Saved series');
+        } else if (process.env.MONGODB_URI) {
+            const db = await getMongoDb();
             await db.collection('series').deleteMany({});
             if (series.length > 0) {
                 await db.collection('series').insertMany(series);
@@ -489,8 +517,18 @@ const Storage = {
     },
 
     async getAnalytics() {
-        const db = await getMongoDb();
-        if (db) {
+        if (process.env.NETLIFY) {
+            console.log('[NETLIFY BLOBS] Fetching analytics...');
+            const store = getStore('msh-content-planner');
+            const data = await store.getJSON('analytics');
+            if (!data) {
+                console.log('[NETLIFY BLOBS] Seeding default analytics');
+                await store.setJSON('analytics', DEFAULT_ANALYTICS);
+                return DEFAULT_ANALYTICS;
+            }
+            return data;
+        } else if (process.env.MONGODB_URI) {
+            const db = await getMongoDb();
             const doc = await db.collection('analytics').findOne({});
             if (!doc) {
                 console.log('[MONGODB] Seeding empty analytics with defaults');
@@ -506,8 +544,12 @@ const Storage = {
     },
 
     async saveAnalytics(analytics) {
-        const db = await getMongoDb();
-        if (db) {
+        if (process.env.NETLIFY) {
+            const store = getStore('msh-content-planner');
+            await store.setJSON('analytics', analytics);
+            console.log('[NETLIFY BLOBS] Saved analytics');
+        } else if (process.env.MONGODB_URI) {
+            const db = await getMongoDb();
             await db.collection('analytics').replaceOne({}, analytics, { upsert: true });
             console.log('[MONGODB] Saved analytics.');
         } else {
@@ -517,8 +559,14 @@ const Storage = {
     },
 
     async reset() {
-        const db = await getMongoDb();
-        if (db) {
+        if (process.env.NETLIFY) {
+            const store = getStore('msh-content-planner');
+            await store.setJSON('schedules', DEFAULT_CONTENT);
+            await store.setJSON('series', DEFAULT_SERIES);
+            await store.setJSON('analytics', DEFAULT_ANALYTICS);
+            console.log('[NETLIFY BLOBS] Database collections reset to defaults');
+        } else if (process.env.MONGODB_URI) {
+            const db = await getMongoDb();
             await db.collection('schedules').deleteMany({});
             await db.collection('series').deleteMany({});
             await db.collection('analytics').deleteMany({});
