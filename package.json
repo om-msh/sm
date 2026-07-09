@@ -1,0 +1,17 @@
+{
+  "name": "msh-content-planner",
+  "version": "1.0.0",
+  "description": "MeitY Startup Hub Content Planner with Backend Server Integration",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "mongodb": "^6.8.0",
+    "serverless-http": "^3.2.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

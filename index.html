@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MeitY Startup Hub - Content Calendar & Dashboard</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=16">
+</head>
+<body class="dark-theme">
+    <!-- Sidebar Overlay Backdrop for Mobile -->
+    <div id="sidebar-overlay" class="sidebar-overlay"></div>
+    <!-- Login Screen Container -->
+    <div class="login-container" id="login-screen">
+        <div class="login-orb login-orb-1"></div>
+        <div class="login-orb login-orb-2"></div>
+        
+        <div class="login-card">
+            <div class="login-logo-container">
+                <div class="login-logo">M</div>
+                <h2>MeitY Startup Hub</h2>
+                <p>Content Planner Workspace</p>
+            </div>
+            
+            <div class="login-error-msg" id="login-error">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <span id="login-error-text">Invalid credentials.</span>
+            </div>
+            
+            <form id="login-form" class="login-form">
+                <div class="form-group">
+                    <label for="login-username">Username</label>
+                    <div class="input-icon-wrapper">
+                        <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        <input type="text" id="login-username" required autocomplete="username" placeholder="Enter username">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <div class="input-icon-wrapper">
+                        <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        <input type="password" id="login-password" required autocomplete="current-password" placeholder="Enter password">
+                        <button type="button" id="btn-toggle-password" class="btn-toggle-password" title="Show/Hide Password">
+                            <svg id="icon-eye-show" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            <svg id="icon-eye-hide" class="hidden" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-login">
+                    <span>Access Workspace</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Workspace Container -->
+    <div class="app-container" id="app-workspace" style="display: none;">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="logo-icon">M</div>
+                <div class="brand-text">
+                    <h2>MeitY Startup Hub</h2>
+                    <span>Content Planner</span>
+                </div>
+            </div>
+            
+            <nav class="nav-menu">
+                <button class="nav-item active" data-view="dashboard">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+                    <span>Dashboard View</span>
+                </button>
+                <button class="nav-item" data-view="calendar">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <span>Calendar Grid</span>
+                </button>
+                <button class="nav-item" data-view="list">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                    <span>Content List</span>
+                </button>
+                <button class="nav-item" data-view="analytics">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                    <span>Social Analytics</span>
+                </button>
+                <button class="nav-item" data-view="series">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                    <span>Flagship Series</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="workspace-profile" style="margin-bottom: 1rem;">
+                    <div class="profile-avatar">MS</div>
+                    <div class="profile-info">
+                        <h4>MeitY Hub Workspace</h4>
+                        <span>Admin Dashboard</span>
+                    </div>
+                </div>
+                <button id="btn-reset" class="btn btn-secondary" style="width: 100%;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                    <span>Reset Data</span>
+                </button>
+                <button id="btn-logout" class="btn btn-logout-sidebar" style="width: 100%;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header bar -->
+            <header class="main-header">
+                <!-- Hamburger Menu Button -->
+                <button id="btn-menu-toggle" class="btn-menu-toggle" aria-label="Toggle Sidebar Menu">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                </button>
+                <div class="header-title">
+                    <h1 id="view-title">Dashboard View</h1>
+                    <p id="view-subtitle">July 2026 Content Strategy Plan</p>
+                </div>
+                <div class="header-actions">
+                    <div class="search-bar" id="header-search-container">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <input type="text" id="global-search" placeholder="Search topics, copy, tags...">
+                    </div>
+                    <button id="btn-add-schedule" class="btn btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        <span>Add Schedule</span>
+                    </button>
+                    
+                    <!-- Exporters Dropdown -->
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" id="btn-export">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            <span>Export</span>
+                        </button>
+                        <div class="dropdown-content">
+                            <a href="#" id="export-json">Export as JSON</a>
+                            <a href="#" id="export-csv">Export as CSV</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Stats Bar (Visible in Dashboard/Analytics) -->
+            <section class="stats-container" id="global-stats">
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="stat-label">Total Posts Planned</span>
+                        <h3 id="stat-total-posts">0</h3>
+                    </div>
+                    <div class="stat-icon pulse-blue">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="stat-label">Completed Posts</span>
+                        <h3 id="stat-completed">0</h3>
+                    </div>
+                    <div class="stat-icon pulse-emerald">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Workspace views -->
+            <div class="view-panel active" id="view-dashboard">
+
+
+                <!-- Combined Grid: Mini-Calendar & Upcoming list -->
+                <div class="dashboard-grid">
+                    <div class="dashboard-column">
+                        <div class="card calendar-mini-card">
+                            <div class="card-header">
+                                <h3>Calendar Snapshot</h3>
+                                <button class="btn-text btn-view-calendar">Go to Calendar Grid &rarr;</button>
+                            </div>
+                            <div class="mini-calendar-days-header">
+                                <div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div>
+                            </div>
+                            <div class="mini-calendar-grid" id="mini-calendar-body">
+                                <!-- Generated by JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-column">
+                        <div class="card upcoming-posts-card">
+                            <div class="card-header">
+                                <h3>Upcoming Scheduled Content</h3>
+                                <button class="btn-text btn-view-list">View All List &rarr;</button>
+                            </div>
+                            <div class="upcoming-list" id="upcoming-posts-body">
+                                <!-- Generated by JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View: Calendar Grid -->
+            <div class="view-panel" id="view-calendar">
+                <div class="card full-calendar-card">
+                    <div class="calendar-controls">
+                        <div class="month-title-selector">
+                            <button id="btn-prev-month" class="btn-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>
+                            <h2 id="calendar-month-year">July 2026</h2>
+                            <button id="btn-next-month" class="btn-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>
+                        </div>
+                        <div class="calendar-filters">
+                            <select id="calendar-filter-type" class="form-control select-dark">
+                                <option value="">All Content Types</option>
+                                <option value="Startup Spotlight">Startup Spotlight</option>
+                                <option value="Incubator Spotlight">Incubator Spotlight</option>
+                                <option value="Human Content">Human Content</option>
+                                <option value="MSH Brand Identity">MSH Brand Identity</option>
+                                <option value="FoundHer">FoundHer</option>
+                                <option value="Startup Decode">Startup Decode</option>
+                                <option value="Milestone Moments">Milestone Moments</option>
+                                <option value="Comic Strip">Comic Strip</option>
+                                <option value="Student to Founder">Student to Founder</option>
+                                <option value="World Youth Skills Day">World Youth Skills Day</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <select id="calendar-filter-status" class="form-control select-dark">
+                                <option value="">All Statuses</option>
+                                <option value="Draft">Draft</option>
+                                <option value="Scheduled">Scheduled</option>
+                                <option value="Published">Published</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="calendar-grid-header">
+                        <div><span class="day-full">Sunday</span><span class="day-short">Su</span></div>
+                        <div><span class="day-full">Monday</span><span class="day-short">Mo</span></div>
+                        <div><span class="day-full">Tuesday</span><span class="day-short">Tu</span></div>
+                        <div><span class="day-full">Wednesday</span><span class="day-short">We</span></div>
+                        <div><span class="day-full">Thursday</span><span class="day-short">Th</span></div>
+                        <div><span class="day-full">Friday</span><span class="day-short">Fr</span></div>
+                        <div><span class="day-full">Saturday</span><span class="day-short">Sa</span></div>
+                    </div>
+                    <div class="calendar-grid" id="main-calendar-grid">
+                        <!-- Generated by JS -->
+                    </div>
+                    <!-- Selected Day Details Panel -->
+                    <div id="calendar-day-details" class="calendar-day-details"></div>
+                </div>
+            </div>
+
+            <!-- View: Content List -->
+            <div class="view-panel" id="view-list">
+                <div class="card list-view-card">
+                    <div class="list-filters-bar">
+                        <div class="filter-group">
+                            <input type="text" id="list-search" class="form-control" placeholder="Search by topic, keyword, copy...">
+                        </div>
+                        <div class="filter-group">
+                            <select id="list-filter-month" class="form-control">
+                                <option value="">All Months</option>
+                                <option value="0">January</option>
+                                <option value="1">February</option>
+                                <option value="2">March</option>
+                                <option value="3">April</option>
+                                <option value="4">May</option>
+                                <option value="5">June</option>
+                                <option value="6">July</option>
+                                <option value="7">August</option>
+                                <option value="8">September</option>
+                                <option value="9">October</option>
+                                <option value="10">November</option>
+                                <option value="11">December</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <select id="list-filter-year" class="form-control">
+                                <option value="">All Years</option>
+                                <option value="2024">2024</option>
+                                <option value="2025">2025</option>
+                                <option value="2026">2026</option>
+                                <option value="2027">2027</option>
+                                <option value="2028">2028</option>
+                                <option value="2029">2029</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="msh-table" id="content-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 110px">Date</th>
+                                    <th style="width: 160px">Content Type</th>
+                                    <th style="width: 200px">Topic / Theme</th>
+                                    <th style="width: 160px">Flagship Series</th>
+                                    <th>Caption / Copy Idea</th>
+                                    <th style="width: 100px">Status</th>
+                                    <th style="width: 110px">Platforms</th>
+                                    <th style="width: 100px" class="align-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="list-table-body">
+                                <!-- Generated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="table-footer" id="list-table-footer">
+                        Showing 0 of 0 entries
+                    </div>
+                </div>
+            </div>
+
+            <!-- View: Social Analytics -->
+            <div class="view-panel" id="view-analytics">
+                <div class="analytics-header">
+                    <div class="analytics-overview">
+                        <h3>Social Channel Performance</h3>
+                        <p>Track followers, engagement, and reach metrics across all MeitY channels.</p>
+                    </div>
+                    <button id="btn-update-analytics" class="btn btn-secondary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                        <span>Update Metrics</span>
+                    </button>
+                </div>
+                
+                <div class="analytics-grid" id="analytics-channels-grid">
+                    <!-- Dynamic platform cards generated by JS -->
+                </div>
+            </div>
+
+            <!-- View: Flagship Series -->
+            <div class="view-panel" id="view-series">
+                <div class="analytics-header">
+                    <div class="analytics-overview">
+                        <h3>Flagship Content Series</h3>
+                        <p>Track your active video/post series and metrics for published content.</p>
+                    </div>
+                    <button id="btn-add-series" class="btn btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        <span>Add Series</span>
+                    </button>
+                </div>
+
+                <div class="series-filters-row" style="display: flex; gap: 1.5rem; align-items: center; padding: 1.25rem 1.5rem; margin-top: 1rem; border-radius: 12px; background-color: var(--bg-card); border: 1px solid var(--border-color); flex-wrap: wrap;">
+                    <span style="font-weight: 600; color: var(--text-primary); font-family: 'Outfit', sans-serif;">Filter by Month/Year (for Monthly Count):</span>
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <div class="form-group" style="margin: 0; width: 140px;">
+                            <select id="series-filter-month" class="form-control" style="padding: 0.5rem;">
+                                <option value="0">January</option>
+                                <option value="1">February</option>
+                                <option value="2">March</option>
+                                <option value="3">April</option>
+                                <option value="4">May</option>
+                                <option value="5">June</option>
+                                <option value="6" selected>July</option>
+                                <option value="7">August</option>
+                                <option value="8">September</option>
+                                <option value="9">October</option>
+                                <option value="10">November</option>
+                                <option value="11">December</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin: 0; width: 100px;">
+                            <select id="series-filter-year" class="form-control" style="padding: 0.5rem;">
+                                <option value="2024">2024</option>
+                                <option value="2025">2025</option>
+                                <option value="2026" selected>2026</option>
+                                <option value="2027">2027</option>
+                                <option value="2028">2028</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="series-grid" id="series-grid" style="margin-top: 1.5rem;">
+                    <!-- Dynamic flagship series cards generated by JS -->
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Modal Dialog: Create / Edit Content Schedule -->
+    <div class="modal-overlay" id="editor-modal">
+        <div class="modal-content card">
+            <header class="modal-header">
+                <h3 id="modal-title">Edit Content Schedule</h3>
+                <button id="modal-btn-close" class="btn-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </header>
+            
+            <form id="schedule-form" class="modal-form">
+                <input type="hidden" id="form-id">
+                
+                <div class="form-row">
+                    <div class="form-group col-6">
+                        <label for="form-date">Publish Date <span class="required">*</span></label>
+                        <input type="date" id="form-date" class="form-control" required min="2026-07-01" max="2026-07-31">
+                    </div>
+                    <div class="form-group col-6">
+                        <label for="form-type">Content Type <span class="required">*</span></label>
+                        <select id="form-type" class="form-control" required>
+                            <option value="">Select type...</option>
+                            <option value="Startup Spotlight">Startup Spotlight</option>
+                            <option value="Incubator Spotlight">Incubator Spotlight</option>
+                            <option value="Human Content">Human Content</option>
+                            <option value="MSH Brand Identity">MSH Brand Identity</option>
+                            <option value="FoundHer">FoundHer</option>
+                            <option value="Startup Decode">Startup Decode</option>
+                            <option value="Milestone Moments">Milestone Moments</option>
+                            <option value="Comic Strip">Comic Strip</option>
+                            <option value="Student to Founder">Student to Founder</option>
+                            <option value="World Youth Skills Day">World Youth Skills Day</option>
+                            <option value="Other">Other (Type below)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row" id="custom-type-row" style="display: none;">
+                    <div class="form-group col-12">
+                        <label for="form-custom-type">Custom Content Type</label>
+                        <input type="text" id="form-custom-type" class="form-control" placeholder="Enter custom content type...">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group col-6">
+                        <label for="form-topic">Topic / Theme <span class="required">*</span></label>
+                        <input type="text" id="form-topic" class="form-control" required placeholder="e.g. SkyySkill Academy Pvt. Ltd">
+                    </div>
+                    <div class="form-group col-6">
+                        <label for="form-series-select">Flagship Series</label>
+                        <select id="form-series-select" class="form-control">
+                            <!-- Populated dynamically by JS -->
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="form-copy">Caption / Copy Idea</label>
+                    <textarea id="form-copy" class="form-control" rows="4" placeholder="Draft your social media copy idea, hashtags, or reference material here..."></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group col-6">
+                        <label for="form-status">Status</label>
+                        <select id="form-status" class="form-control">
+                            <option value="Draft">Draft</option>
+                            <option value="Scheduled">Scheduled</option>
+                            <option value="Published">Published</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group col-6">
+                        <label>Target Social Platforms</label>
+                        <div class="platforms-checkboxes">
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="platform-linkedin" value="LinkedIn" checked>
+                                <span class="checkmark"></span>
+                                <span class="platform-lbl">LinkedIn</span>
+                            </label>
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="platform-twitter" value="X/Twitter" checked>
+                                <span class="checkmark"></span>
+                                <span class="platform-lbl">X/Twitter</span>
+                            </label>
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="platform-instagram" value="Instagram">
+                                <span class="checkmark"></span>
+                                <span class="platform-lbl">Instagram</span>
+                            </label>
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="platform-facebook" value="Facebook">
+                                <span class="checkmark"></span>
+                                <span class="platform-lbl">Facebook</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <footer class="form-actions">
+                    <button type="button" id="modal-btn-delete" class="btn btn-danger" style="margin-right: auto;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                        <span>Delete</span>
+                    </button>
+                    <button type="button" id="modal-btn-cancel" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </footer>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Dialog: Update Social Analytics Metrics -->
+    <div class="modal-overlay" id="analytics-modal">
+        <div class="modal-content card">
+            <header class="modal-header">
+                <h3>Update Social Channel Metrics</h3>
+                <button id="analytics-modal-btn-close" class="btn-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </header>
+            
+            <form id="analytics-form" class="modal-form">
+                <div class="analytics-form-section">
+                    <h4 class="form-section-title">LinkedIn</h4>
+                    <div class="form-row">
+                        <div class="form-group col-6">
+                            <label for="input-li-followers">Followers</label>
+                            <input type="number" id="input-li-followers" class="form-control" required min="0">
+                        </div>
+                        <div class="form-group col-6">
+                            <label for="input-li-growth">Weekly Growth (%)</label>
+                            <input type="number" id="input-li-growth" class="form-control" step="0.1" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="analytics-form-section" style="margin-top: 1.5rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+                    <h4 class="form-section-title">Facebook</h4>
+                    <div class="form-row">
+                        <div class="form-group col-6">
+                            <label for="input-fb-followers">Followers</label>
+                            <input type="number" id="input-fb-followers" class="form-control" required min="0">
+                        </div>
+                        <div class="form-group col-6">
+                            <label for="input-fb-growth">Weekly Growth (%)</label>
+                            <input type="number" id="input-fb-growth" class="form-control" step="0.1" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="analytics-form-section" style="margin-top: 1.5rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+                    <h4 class="form-section-title">Instagram</h4>
+                    <div class="form-row">
+                        <div class="form-group col-6">
+                            <label for="input-ig-followers">Followers</label>
+                            <input type="number" id="input-ig-followers" class="form-control" required min="0">
+                        </div>
+                        <div class="form-group col-6">
+                            <label for="input-ig-growth">Weekly Growth (%)</label>
+                            <input type="number" id="input-ig-growth" class="form-control" step="0.1" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="analytics-form-section" style="margin-top: 1.5rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+                    <h4 class="form-section-title">X / Twitter</h4>
+                    <div class="form-row">
+                        <div class="form-group col-6">
+                            <label for="input-tw-followers">Followers</label>
+                            <input type="number" id="input-tw-followers" class="form-control" required min="0">
+                        </div>
+                        <div class="form-group col-6">
+                            <label for="input-tw-growth">Weekly Growth (%)</label>
+                            <input type="number" id="input-tw-growth" class="form-control" step="0.1" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="analytics-form-section" style="margin-top: 1.5rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+                    <h4 class="form-section-title">YouTube</h4>
+                    <div class="form-row">
+                        <div class="form-group col-6">
+                            <label for="input-yt-followers">Subscribers</label>
+                            <input type="number" id="input-yt-followers" class="form-control" required min="0">
+                        </div>
+                        <div class="form-group col-6">
+                            <label for="input-yt-growth">Weekly Growth (%)</label>
+                            <input type="number" id="input-yt-growth" class="form-control" step="0.1" required>
+                        </div>
+                    </div>
+                </div>
+
+                <footer class="form-actions" style="margin-top: 2rem;">
+                    <button type="button" id="analytics-modal-btn-cancel" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Metrics</button>
+                </footer>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Dialog: Add Flagship Series -->
+    <div class="modal-overlay" id="series-modal">
+        <div class="modal-content card" style="max-width: 450px;">
+            <header class="modal-header">
+                <h3>Add Flagship Series</h3>
+                <button id="series-modal-btn-close" class="btn-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </header>
+            
+            <form id="series-form" class="modal-form">
+                <div class="form-group">
+                    <label for="series-name">Series Name <span class="required">*</span></label>
+                    <input type="text" id="series-name" class="form-control" placeholder="e.g. Tech Innovation" required>
+                </div>
+
+                <div class="form-row" style="margin-top: 1.25rem;">
+                    <div class="form-group col-6">
+                        <label for="series-start-date">Start Date <span class="required">*</span></label>
+                        <input type="date" id="series-start-date" class="form-control" required>
+                    </div>
+                    <div class="form-group col-6">
+                        <label for="series-end-date">End Date</label>
+                        <input type="date" id="series-end-date" class="form-control">
+                        <div style="margin-top: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="series-ongoing" style="width: auto; cursor: pointer;">
+                            <label for="series-ongoing" style="margin: 0; font-size: 0.85rem; cursor: pointer; color: var(--text-primary);">Ongoing series</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 1.25rem;">
+                    <label for="series-total-published">Total Published <span class="required">*</span></label>
+                    <input type="number" id="series-total-published" class="form-control" min="0" required placeholder="e.g. 15">
+                </div>
+                
+                <div class="form-group" style="margin-top: 1.25rem;">
+                    <label for="series-image-file">Cover Image <span class="required">*</span></label>
+                    <input type="file" id="series-image-file" class="form-control" accept="image/*">
+                    <div id="series-image-preview" class="series-image-preview" style="display: none; margin-top: 1rem; border-radius: 8px; overflow: hidden; height: 140px; border: 1px solid var(--border-color); background-size: cover; background-position: center;"></div>
+                </div>
+                
+                <footer class="form-actions" style="margin-top: 2rem;">
+                    <button type="button" id="series-modal-btn-cancel" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Series</button>
+                </footer>
+            </form>
+        </div>
+    </div>
+
+    <!-- Script loading -->
+    <script src="app.js?v=16"></script>
+</body>
+</html>
