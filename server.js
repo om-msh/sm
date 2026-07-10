@@ -2,7 +2,6 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const { MongoClient } = require('mongodb');
-const { getStore } = require('@netlify/blobs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -393,14 +392,18 @@ function initializeFile(filePath, defaultValue) {
     }
 }
 
-// Only initialize folder and files locally if neither MONGODB_URI nor NETLIFY is set to avoid EROFS error on Netlify
-if (!process.env.MONGODB_URI && !process.env.NETLIFY) {
-    if (!fs.existsSync(DATA_DIR)) {
-        fs.mkdirSync(DATA_DIR, { recursive: true });
+// Only initialize folder and files locally if neither MONGODB_URI nor VERCEL is set to avoid write-errors in read-only environments
+if (!process.env.MONGODB_URI && !process.env.VERCEL) {
+    try {
+        if (!fs.existsSync(DATA_DIR)) {
+            fs.mkdirSync(DATA_DIR, { recursive: true });
+        }
+        initializeFile(SCHEDULES_FILE, DEFAULT_CONTENT);
+        initializeFile(SERIES_FILE, DEFAULT_SERIES);
+        initializeFile(ANALYTICS_FILE, DEFAULT_ANALYTICS);
+    } catch (err) {
+        console.warn('[INIT] Failed to initialize local storage:', err.message);
     }
-    initializeFile(SCHEDULES_FILE, DEFAULT_CONTENT);
-    initializeFile(SERIES_FILE, DEFAULT_SERIES);
-    initializeFile(ANALYTICS_FILE, DEFAULT_ANALYTICS);
 }
 
 // --- MongoDB Integration Client Caching ---
@@ -429,17 +432,7 @@ async function getMongoDb() {
 // --- Unified Storage abstraction layer ---
 const Storage = {
     async getSchedules() {
-        if (process.env.NETLIFY) {
-            console.log('[NETLIFY BLOBS] Fetching schedules...');
-            const store = getStore('msh-content-planner');
-            const data = await store.getJSON('schedules');
-            if (!data) {
-                console.log('[NETLIFY BLOBS] Seeding default schedules');
-                await store.setJSON('schedules', DEFAULT_CONTENT);
-                return DEFAULT_CONTENT;
-            }
-            return data;
-        } else if (process.env.MONGODB_URI) {
+        if (process.env.MONGODB_URI) {
             const db = await getMongoDb();
             const items = await db.collection('schedules').find({}).toArray();
             if (items.length === 0) {
@@ -449,17 +442,20 @@ const Storage = {
             }
             return items.map(({ _id, ...rest }) => rest);
         } else {
-            const raw = fs.readFileSync(SCHEDULES_FILE, 'utf8');
-            return JSON.parse(raw);
+            try {
+                if (fs.existsSync(SCHEDULES_FILE)) {
+                    const raw = fs.readFileSync(SCHEDULES_FILE, 'utf8');
+                    return JSON.parse(raw);
+                }
+            } catch (e) {
+                console.error('[STORAGE ERROR] Failed to read schedules:', e.message);
+            }
+            return DEFAULT_CONTENT;
         }
     },
 
     async saveSchedules(schedules) {
-        if (process.env.NETLIFY) {
-            const store = getStore('msh-content-planner');
-            await store.setJSON('schedules', schedules);
-            console.log('[NETLIFY BLOBS] Saved schedules');
-        } else if (process.env.MONGODB_URI) {
+        if (process.env.MONGODB_URI) {
             const db = await getMongoDb();
             await db.collection('schedules').deleteMany({});
             if (schedules.length > 0) {
@@ -467,23 +463,18 @@ const Storage = {
             }
             console.log(`[MONGODB] Saved ${schedules.length} schedules.`);
         } else {
-            const json = JSON.stringify(schedules, null, 4);
-            fs.writeFileSync(SCHEDULES_FILE, json, 'utf8');
+            try {
+                const json = JSON.stringify(schedules, null, 4);
+                fs.writeFileSync(SCHEDULES_FILE, json, 'utf8');
+            } catch (e) {
+                console.error('[STORAGE ERROR] Failed to save schedules:', e.message);
+                throw e;
+            }
         }
     },
 
     async getSeries() {
-        if (process.env.NETLIFY) {
-            console.log('[NETLIFY BLOBS] Fetching series...');
-            const store = getStore('msh-content-planner');
-            const data = await store.getJSON('series');
-            if (!data) {
-                console.log('[NETLIFY BLOBS] Seeding default series');
-                await store.setJSON('series', DEFAULT_SERIES);
-                return DEFAULT_SERIES;
-            }
-            return data;
-        } else if (process.env.MONGODB_URI) {
+        if (process.env.MONGODB_URI) {
             const db = await getMongoDb();
             const items = await db.collection('series').find({}).toArray();
             if (items.length === 0) {
@@ -493,17 +484,20 @@ const Storage = {
             }
             return items.map(({ _id, ...rest }) => rest);
         } else {
-            const raw = fs.readFileSync(SERIES_FILE, 'utf8');
-            return JSON.parse(raw);
+            try {
+                if (fs.existsSync(SERIES_FILE)) {
+                    const raw = fs.readFileSync(SERIES_FILE, 'utf8');
+                    return JSON.parse(raw);
+                }
+            } catch (e) {
+                console.error('[STORAGE ERROR] Failed to read series:', e.message);
+            }
+            return DEFAULT_SERIES;
         }
     },
 
     async saveSeries(series) {
-        if (process.env.NETLIFY) {
-            const store = getStore('msh-content-planner');
-            await store.setJSON('series', series);
-            console.log('[NETLIFY BLOBS] Saved series');
-        } else if (process.env.MONGODB_URI) {
+        if (process.env.MONGODB_URI) {
             const db = await getMongoDb();
             await db.collection('series').deleteMany({});
             if (series.length > 0) {
@@ -511,23 +505,18 @@ const Storage = {
             }
             console.log(`[MONGODB] Saved ${series.length} series.`);
         } else {
-            const json = JSON.stringify(series, null, 4);
-            fs.writeFileSync(SERIES_FILE, json, 'utf8');
+            try {
+                const json = JSON.stringify(series, null, 4);
+                fs.writeFileSync(SERIES_FILE, json, 'utf8');
+            } catch (e) {
+                console.error('[STORAGE ERROR] Failed to save series:', e.message);
+                throw e;
+            }
         }
     },
 
     async getAnalytics() {
-        if (process.env.NETLIFY) {
-            console.log('[NETLIFY BLOBS] Fetching analytics...');
-            const store = getStore('msh-content-planner');
-            const data = await store.getJSON('analytics');
-            if (!data) {
-                console.log('[NETLIFY BLOBS] Seeding default analytics');
-                await store.setJSON('analytics', DEFAULT_ANALYTICS);
-                return DEFAULT_ANALYTICS;
-            }
-            return data;
-        } else if (process.env.MONGODB_URI) {
+        if (process.env.MONGODB_URI) {
             const db = await getMongoDb();
             const doc = await db.collection('analytics').findOne({});
             if (!doc) {
@@ -538,34 +527,36 @@ const Storage = {
             const { _id, ...rest } = doc;
             return rest;
         } else {
-            const raw = fs.readFileSync(ANALYTICS_FILE, 'utf8');
-            return JSON.parse(raw);
+            try {
+                if (fs.existsSync(ANALYTICS_FILE)) {
+                    const raw = fs.readFileSync(ANALYTICS_FILE, 'utf8');
+                    return JSON.parse(raw);
+                }
+            } catch (e) {
+                console.error('[STORAGE ERROR] Failed to read analytics:', e.message);
+            }
+            return DEFAULT_ANALYTICS;
         }
     },
 
     async saveAnalytics(analytics) {
-        if (process.env.NETLIFY) {
-            const store = getStore('msh-content-planner');
-            await store.setJSON('analytics', analytics);
-            console.log('[NETLIFY BLOBS] Saved analytics');
-        } else if (process.env.MONGODB_URI) {
+        if (process.env.MONGODB_URI) {
             const db = await getMongoDb();
             await db.collection('analytics').replaceOne({}, analytics, { upsert: true });
             console.log('[MONGODB] Saved analytics.');
         } else {
-            const json = JSON.stringify(analytics, null, 4);
-            fs.writeFileSync(ANALYTICS_FILE, json, 'utf8');
+            try {
+                const json = JSON.stringify(analytics, null, 4);
+                fs.writeFileSync(ANALYTICS_FILE, json, 'utf8');
+            } catch (e) {
+                console.error('[STORAGE ERROR] Failed to save analytics:', e.message);
+                throw e;
+            }
         }
     },
 
     async reset() {
-        if (process.env.NETLIFY) {
-            const store = getStore('msh-content-planner');
-            await store.setJSON('schedules', DEFAULT_CONTENT);
-            await store.setJSON('series', DEFAULT_SERIES);
-            await store.setJSON('analytics', DEFAULT_ANALYTICS);
-            console.log('[NETLIFY BLOBS] Database collections reset to defaults');
-        } else if (process.env.MONGODB_URI) {
+        if (process.env.MONGODB_URI) {
             const db = await getMongoDb();
             await db.collection('schedules').deleteMany({});
             await db.collection('series').deleteMany({});
@@ -576,9 +567,14 @@ const Storage = {
             await db.collection('analytics').insertOne(DEFAULT_ANALYTICS);
             console.log('[MONGODB] Database collections reset to defaults');
         } else {
-            fs.writeFileSync(SCHEDULES_FILE, JSON.stringify(DEFAULT_CONTENT, null, 4), 'utf8');
-            fs.writeFileSync(SERIES_FILE, JSON.stringify(DEFAULT_SERIES, null, 4), 'utf8');
-            fs.writeFileSync(ANALYTICS_FILE, JSON.stringify(DEFAULT_ANALYTICS, null, 4), 'utf8');
+            try {
+                fs.writeFileSync(SCHEDULES_FILE, JSON.stringify(DEFAULT_CONTENT, null, 4), 'utf8');
+                fs.writeFileSync(SERIES_FILE, JSON.stringify(DEFAULT_SERIES, null, 4), 'utf8');
+                fs.writeFileSync(ANALYTICS_FILE, JSON.stringify(DEFAULT_ANALYTICS, null, 4), 'utf8');
+            } catch (e) {
+                console.error('[STORAGE ERROR] Failed to reset data files:', e.message);
+                throw e;
+            }
         }
     }
 };
