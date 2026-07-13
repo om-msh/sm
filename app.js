@@ -1484,32 +1484,47 @@ class ContentCalendarApp {
                 const selectedMonthName = monthNames[filterMonth] || "Monthly";
 
                 html += `
-                <div class="series-card">
-                    <div class="series-card-image" style="background: ${cardBgStyle}; background-size: cover; background-position: center;">
-                        <button class="btn-icon btn-delete-series" data-index="${index}">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-                        </button>
-                        <button class="btn-icon btn-edit-series" data-index="${index}">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-                        </button>
-                    </div>
-                    <div class="series-card-body">
-                        <h4 class="series-title" style="margin-bottom: 0.5rem;">${escapeHtml(s.name)}</h4>
-                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1.25rem;">
-                            Duration: <span style="font-weight: 500; color: var(--text-primary);">${formattedStart} - ${formattedEnd}</span>
-                        </div>
-                        <div class="series-meta" style="flex-direction: column; gap: 0.6rem; align-items: stretch; margin-bottom: 1rem;">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <span class="series-meta-label">Total Published:</span>
-                                <span style="font-weight: 700; color: var(--accent-primary); font-size: 1.1rem;">${s.totalPublished || 0}</span>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <span class="series-meta-label">${selectedMonthName} Published:</span>
-                                <span style="font-weight: 700; color: #10b981; font-size: 1.1rem;">${monthlyCount}</span>
+                <div class="series-card" style="position: relative; overflow: hidden;">
+                    <!-- Colored accent bar at the top -->
+                    <div class="series-accent-bar" style="height: 5px; background: ${s.image || 'var(--accent-primary)'}; width: 100%;"></div>
+                    
+                    <div class="series-card-body" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem;">
+                            <h4 class="series-title" style="margin: 0; font-size: 1.15rem; font-weight: 600; font-family: 'Outfit', sans-serif; color: var(--text-primary); line-height: 1.4;">${escapeHtml(s.name)}</h4>
+                            <div style="display: flex; gap: 0.4rem; flex-shrink: 0; align-items: center;">
+                                <button class="btn-edit-series" data-index="${index}" title="Edit Series">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                </button>
+                                <button class="btn-delete-series" data-index="${index}" title="Delete Series">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                                </button>
                             </div>
                         </div>
-                        <div class="series-progress-bar">
-                            <div class="series-progress-fill" style="width: ${Math.min(monthlyCount * 10, 100)}%;"></div>
+                        
+                        <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; color: var(--text-muted); margin-top: -0.25rem;">
+                            <span>Duration:</span>
+                            <span style="font-weight: 500; color: var(--text-secondary);">${formattedStart} - ${formattedEnd}</span>
+                        </div>
+
+                        <div class="series-meta-new" style="display: flex; flex-direction: column; gap: 0.5rem; background: rgba(255,255,255,0.02); padding: 0.75rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.03); margin-top: 0.25rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem;">
+                                <span style="color: var(--text-muted);">Total Published:</span>
+                                <span style="font-weight: 600; color: var(--text-primary);">${s.totalPublished || 0} posts</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem;">
+                                <span style="color: var(--text-muted);">${selectedMonthName} Published:</span>
+                                <span style="font-weight: 600; color: #10b981;">${monthlyCount} posts</span>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 0.25rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.35rem;">
+                                <span>Monthly Target Progress</span>
+                                <span style="font-weight: 600; color: var(--text-secondary);">${Math.min(monthlyCount * 10, 100)}%</span>
+                            </div>
+                            <div class="series-progress-bar" style="height: 6px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden;">
+                                <div class="series-progress-fill" style="height: 100%; width: ${Math.min(monthlyCount * 10, 100)}%; background: ${s.image || 'var(--accent-primary)'}; border-radius: 4px;"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
