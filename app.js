@@ -1,368 +1,44 @@
 // MeitY Startup Hub - Content Planner Application Controller
 
-// Default static content database for July 2026
-const DEFAULT_CONTENT = [
-    {
-        id: "1",
-        date: "2026-07-01",
-        contentType: "Startup Spotlight",
-        topic: "SkyySkill Academy Pvt. Ltd",
-        pillar: "Skill Development",
-        copy: "Spotlight on SkyySkill Academy Pvt. Ltd! 🚀 Empowers students and professionals with state-of-the-art technical training & vocational skills. Let's celebrate skill-building! #StartupIndia #SkillDevelopment #MeitY",
-        status: "Scheduled",
-        platforms: ["LinkedIn", "X/Twitter"]
-    },
-    {
-        id: "2",
-        date: "2026-07-02",
-        contentType: "Incubator Spotlight",
-        topic: "Amrita Technology Business Incubator",
-        pillar: "Incubation Support",
-        copy: "We are highlighting Amrita Technology Business Incubator today! 🌟 Supporting tech entrepreneurs with state-of-the-art labs, mentorship, and funding opportunities to scale ideas into giants. #Incubator #AmritaTBI #TechInnovation",
-        status: "Scheduled",
-        platforms: ["LinkedIn", "X/Twitter"]
-    },
-    {
-        id: "4",
-        date: "2026-07-04",
-        contentType: "Startup Decode",
-        topic: "DeepTech Innovations Breakdown",
-        pillar: "Technology Knowledge",
-        copy: "Startup Decode: Understanding how DeepTech is altering the modern landscape. Deep dive into algorithms, datasets, and how Indian startups are leading the revolution! 🧠💡 #DeepTech #StartupDecode #TechExplained",
-        status: "Draft",
-        platforms: ["LinkedIn", "X/Twitter"]
-    },
-    {
-        id: "5",
-        date: "2026-07-05",
-        contentType: "Human Content",
-        topic: "Startup Hub Diaries",
-        pillar: "Sector Shoutout & Details",
-        copy: "Giving a shoutout to our incredible startups in core sectors! 🚀 Transitioning to explain what exactly these sectors mean and their direct impact on our future:\n\n- HealthTech (e.g. telemedicine, diagnostics)\n- Agro IoT (smart farming, crop monitoring)\n- Industrial IoT (automation, efficiency)\n- Automation & Robotics (smart manufacturing)\n\n#StartupHubDiaries #IoT #Robotics #HealthTech #Innovation",
-        status: "Scheduled",
-        platforms: ["LinkedIn", "X/Twitter", "Instagram"]
-    },
-    {
-        id: "6",
-        date: "2026-07-06",
-        contentType: "FoundHer",
-        topic: "Women in Tech Leadership",
-        pillar: "Diversity & Inclusion",
-        copy: "This FoundHer session, we celebrate the exceptional women leaders driving change in technology and startup ecosystems across India. Meet the founders breaking barriers and scaling heights! 👩‍💻✨ #FoundHer #WomenInBusiness #DiversityInTech",
-        status: "Scheduled",
-        platforms: ["LinkedIn", "X/Twitter"]
-    },
-    {
-        id: "7",
-        date: "2026-07-07",
-        contentType: "Incubator Spotlight",
-        topic: "AIC-AMTZ MEDIVALLEY INCUBATION COUNCIL",
-        pillar: "Healthcare Infrastructure",
-        copy: "Spotlight on AIC-AMTZ MEDIVALLEY Incubation Council! 🏥 India's premier med-tech incubator supporting startups manufacturing advanced medical devices and diagnostics. Inspiring self-reliance in health! #MedTech #MakeInIndia #Healthcare",
-        status: "Scheduled",
-        platforms: ["LinkedIn", "X/Twitter"]
-    },
-    {
-        id: "8",
-        date: "2026-07-08",
-        contentType: "Startup Spotlight",
-        topic: "Bariflo Cybernetics Private Limited",
-        pillar: "Water Management & IoT",
-        copy: "Startup Spotlight: Bariflo Cybernetics! 🌊 Utilizing IoT, robotics, and cybernetics to automate water body management, aquaculture, and agriculture monitoring. Scaling sustainable tech for a better tomorrow. #SustainableTech #WaterIoT #Automation",
-        status: "Scheduled",
-        platforms: ["LinkedIn", "X/Twitter"]
-    },
-    {
-        id: "9",
-        date: "2026-07-09",
-        contentType: "Comic Strip",
-        topic: "Dream to Startup",
-        pillar: "Creative Engagement",
-        copy: "Dream to Startup: The roller-coaster ride of building a company in one simple comic strip! 🎨 Which stage are you currently at? Let us know in the comments! #StartupLife #FounderHumor #ComicStrip",
-        status: "Scheduled",
-        platforms: ["LinkedIn", "X/Twitter", "Instagram"]
-    },
-    {
-        id: "10",
-        date: "2026-07-10",
-        contentType: "MSH Brand Identity",
-        topic: "Brand Identity Showcase",
-        pillar: "MSH Branding",
-        copy: "MeitY Startup Hub (MSH) is a platform to build, support, and accelerate the Indian startup ecosystem. Discover our values, our goals, and how we can support your journey today! 🔗 #MSH #StartupEcosystem #InnovationIndia",
-        status: "Scheduled",
-        platforms: ["LinkedIn", "X/Twitter"]
-    },
-    {
-        id: "11",
-        date: "2026-07-11",
-        contentType: "Human Content",
-        topic: "Founder in Frames",
-        pillar: "Avsar Founder's Video",
-        copy: "Founder in Frames: Presenting the story of Avsar's founder! 🎥 Watch the journey, the hurdles, and the ultimate breakthrough that built Avsar into the platform it is today. Real stories, real inspiration. #FounderInFrames #Avsar #StartupJourney",
-        status: "Scheduled",
-        platforms: ["LinkedIn", "X/Twitter", "Instagram"]
-    },
-    {
-        id: "12",
-        date: "2026-07-12",
-        contentType: "Student to Founder",
-        topic: "Young Student Innovations",
-        pillar: "Skill & Leadership",
-        copy: "Student to Founder: How young minds are transitioning from university lecture halls to boardroom pitches. Learn about student incubation grants and mentorship programs! 🎓🚀 #StudentFounder #YouthInnovation #Incubation",
-        status: "Scheduled",
-        platforms: ["LinkedIn", "X/Twitter"]
-    },
-    {
-        id: "13",
-        date: "2026-07-13",
-        contentType: "FoundHer",
-        topic: "Dynamic Women Entrepreneurs",
-        pillar: "Diversity & Inclusion",
-        copy: "Highlighting another powerful story of female leadership in our ecosystem! Inspiring, motivating, and scaling. Here's to more diversity in boardrooms! 🌟 #FoundHer #WomenInStartups #TechLeaders",
-        status: "Scheduled",
-        platforms: ["LinkedIn", "X/Twitter"]
-    },
-    {
-        id: "14",
-        date: "2026-07-14",
-        contentType: "Incubator Spotlight",
-        topic: "ANUPAM INNOVATION AND INCUBATION CENTER",
-        pillar: "Incubation Network",
-        copy: "Spotlight on ANUPAM Innovation and Incubation Center! 💡 Providing physical space, funding access, and legal advisory to early-stage startups to smooth their launch and growth paths. #Incubation #StartupsIndia #AnupamCenter",
-        status: "Scheduled",
-        platforms: ["LinkedIn", "X/Twitter"]
-    },
-    {
-        id: "15",
-        date: "2026-07-15",
-        contentType: "World Youth Skills Day",
-        topic: "Empowering Youth Skills",
-        pillar: "Global Milestones",
-        copy: "On World Youth Skills Day, MeitY Startup Hub reiterates its commitment to upskilling the youth in AI, IoT, Blockchain, and Robotics. Preparing the workforce of the future! 🛠️📈 #WorldYouthSkillsDay #Upskilling #FutureOfWork",
-        status: "Scheduled",
-        platforms: ["LinkedIn", "X/Twitter", "Instagram"]
-    },
-    {
-        id: "16",
-        date: "2026-07-16",
-        contentType: "Milestone Moments",
-        topic: "Scaling Ecosystem Success",
-        pillar: "MSH Achievements",
-        copy: "Milestone Moments: Celebrating our ecosystem's growth, total funding raised by incubated startups, and number of patents filed this quarter. Together, we build the future! 🏆📈 #MilestoneMoments #EcosystemGrowth #StartupAchievements",
-        status: "Scheduled",
-        platforms: ["LinkedIn", "X/Twitter"]
-    },
-    {
-        id: "17",
-        date: "2026-07-17",
-        contentType: "Human Content",
-        topic: "Startup Hub Diaries - Deep Dive",
-        pillar: "Sector Knowledge",
-        copy: "Startup Hub Diaries: A day in the life of an incubator manager. Discover what goes on behind the scenes to keep the startup engine running! ☕⚙️ #StartupDiaries #IncubatorLife #BehindTheScenes",
-        status: "Scheduled",
-        platforms: ["LinkedIn", "X/Twitter"]
-    },
-    {
-        id: "18",
-        date: "2026-07-18",
-        contentType: "Startup Decode",
-        topic: "Market Entry Strategy",
-        pillar: "Business Knowledge",
-        copy: "Startup Decode: Deconstructing Go-To-Market (GTM) strategies for B2B SaaS startups. How to find your product-market fit and make your first 100 enterprise sales! 📊💼 #SaaS #StartupDecode #GTMStrategy",
-        status: "Draft",
-        platforms: ["LinkedIn", "X/Twitter"]
-    },
-    {
-        id: "19",
-        date: "2026-07-19",
-        contentType: "Startup Spotlight",
-        topic: "Larkai Healthcare",
-        pillar: "Healthcare Technologies",
-        copy: "Startup Spotlight: Larkai Healthcare! 🩺 Integrating AI with portable medical hardware to diagnose cardio and respiratory illnesses instantly. Democratizing healthcare access for all. #HealthTech #AIinHealthcare #StartupSpotlight",
-        status: "Scheduled",
-        platforms: ["LinkedIn", "X/Twitter"]
-    },
-    {
-        id: "20",
-        date: "2026-07-20",
-        contentType: "FoundHer",
-        topic: "Tech Women Leaders",
-        pillar: "Diversity & Inclusion",
-        copy: "A weekly showcase of brilliant female innovators. Learn about their technical contributions, building teams, and scaling products. 🌟 #FoundHer #WomenInSTEM #TechFounders",
-        status: "Scheduled",
-        platforms: ["LinkedIn", "X/Twitter"]
-    },
-    {
-        id: "21",
-        date: "2026-07-21",
-        contentType: "Incubator Spotlight",
-        topic: "Association of Lady Entrepreneurs of India (ALEAP)",
-        pillar: "Women-led Incubators",
-        copy: "Spotlight: Association of Lady Entrepreneurs of India (ALEAP)! 👩‍💼 Dedicated to promoting women entrepreneurship, providing vocational training, industrial infrastructure, and incubation support. #ALEAP #WomenEntrepreneurs #Incubator",
-        status: "Scheduled",
-        platforms: ["LinkedIn", "X/Twitter"]
-    },
-    {
-        id: "22",
-        date: "2026-07-22",
-        contentType: "Startup Spotlight",
-        topic: "Invent Grid India Pvt. Ltd. (IG Drones/IG Defence)",
-        pillar: "Drone Technology",
-        copy: "Spotlight on Invent Grid India (IG Drones / IG Defence)! 🛸 Pioneering AI-powered drone inspections, surveying, and defensive drone tech. Securing national assets and digitizing infrastructure. #DroneTech #IGDrones #MakeInIndia",
-        status: "Scheduled",
-        platforms: ["LinkedIn", "X/Twitter"]
-    },
-    {
-        id: "23",
-        date: "2026-07-23",
-        contentType: "Human Content",
-        topic: "Founder in Frames - Breakthrough",
-        pillar: "Founder Stories",
-        copy: "Founder in Frames: Capturing the hard-working minds behind India's deep-tech solutions. From late-night debugging sessions to raising seed rounds. 🎥 #FounderInFrames #HardWork #TechIndia",
-        status: "Scheduled",
-        platforms: ["LinkedIn", "X/Twitter"]
-    },
-    {
-        id: "25",
-        date: "2026-07-25",
-        contentType: "MSH Brand Identity",
-        topic: "Genesis Map",
-        pillar: "MSH Branding",
-        copy: "Announcing the Genesis Map! 🗺️ A comprehensive spatial directory of active incubators and startups supported by MeitY across India. Find resources, mentors, and partners near you. #GenesisMap #StartupEcosystem #Geospatial",
-        status: "Scheduled",
-        platforms: ["LinkedIn", "X/Twitter"]
-    },
-    {
-        id: "26",
-        date: "2026-07-26",
-        contentType: "Human Content",
-        topic: "Startup Hub Diaries - Collaboration",
-        pillar: "Networking & Alliances",
-        copy: "Startup Hub Diaries: Bridging the gap between corporate giants and agile startups. How corporate-startup accelerators speed up commercial adoption! 🤝📈 #CorporateInnovation #Startups #Collaboration",
-        status: "Scheduled",
-        platforms: ["LinkedIn", "X/Twitter"]
-    },
-    {
-        id: "27",
-        date: "2026-07-27",
-        contentType: "FoundHer",
-        topic: "Mentorship and Scaling",
-        pillar: "Diversity & Inclusion",
-        copy: "FoundHer: Highlighting advice from senior female executives and startup mentors. How to navigate fundraising, pitch decks, and building early-stage boards. #FoundHer #StartupAdvice #FemaleMentorship",
-        status: "Scheduled",
-        platforms: ["LinkedIn", "X/Twitter"]
-    },
-    {
-        id: "28",
-        date: "2026-07-28",
-        contentType: "Incubator Spotlight",
-        topic: "Centre for Entrepreneurship Development and Incubation- NIT Trichy",
-        pillar: "Academic Incubation",
-        copy: "Highlighting CEDI, NIT Trichy! 🎓 Supporting technical research and commercialization of academic projects. Providing pre-incubation, funding, and IP filing guidance. #CEDI #NITTrichy #AcademicIncubation",
-        status: "Scheduled",
-        platforms: ["LinkedIn", "X/Twitter"]
-    },
-    {
-        id: "29",
-        date: "2026-07-29",
-        contentType: "Startup Spotlight",
-        topic: "Yespoho India Private Limited",
-        pillar: "E-commerce & Artisans",
-        copy: "Startup Spotlight: Yespoho India! 🧵 Direct-to-consumer digital platform connecting local handloom weavers and artisans with global buyers, ensuring fair wages and preserving heritage. #DTC #HandloomArtisans #SocialImpact",
-        status: "Scheduled",
-        platforms: ["LinkedIn", "X/Twitter"]
-    },
-    {
-        id: "30",
-        date: "2026-07-30",
-        contentType: "Startup Decode",
-        topic: "Funding and Cap Tables",
-        pillar: "Financial Literacy",
-        copy: "Startup Decode: Decoupling cap table management, equity dilution, and SAFE notes. A quick guide for first-time founders preparing for seed investments. 📝💰 #CapTable #StartupFunding #FinanceTips",
-        status: "Draft",
-        platforms: ["LinkedIn", "X/Twitter"]
-    },
-    {
-        id: "31",
-        date: "2026-07-31",
-        contentType: "Milestone Moments",
-        topic: "Monthly Roundup",
-        pillar: "MSH Achievements",
-        copy: "July Round-up: Reflecting on a month of tremendous tech growth, spotlighted startups, and active incubation achievements. Onward and upward to August! 🚀📅 #MilestoneMoments #MonthlyRoundup #MSH",
-        status: "Scheduled",
-        platforms: ["LinkedIn", "X/Twitter"]
-    }
-];
+// // Default static content database (Empty by default)
+const DEFAULT_CONTENT = [];
 
-// Default Social Analytics database
+// Default Social Analytics database (Zeroed by default)
 const DEFAULT_ANALYTICS = {
     linkedin: {
-        followers: 124500,
-        followersGrowth: 12.4,
-        impressions: 485000,
-        engagement: 4.8
+        followers: 0,
+        followersGrowth: 0,
+        impressions: 0,
+        engagement: 0
     },
     facebook: {
-        followers: 142000,
-        followersGrowth: 7.2,
-        reach: 310000,
-        engagement: 4.5
+        followers: 0,
+        followersGrowth: 0,
+        reach: 0,
+        engagement: 0
     },
     instagram: {
-        followers: 85200,
-        followersGrowth: 8.7,
-        reach: 215000,
-        engagement: 5.2
+        followers: 0,
+        followersGrowth: 0,
+        reach: 0,
+        engagement: 0
     },
     twitter: {
-        followers: 98100,
-        followersGrowth: 5.1,
-        impressions: 320000,
-        engagement: 3.1
+        followers: 0,
+        followersGrowth: 0,
+        impressions: 0,
+        engagement: 0
     },
     youtube: {
-        followers: 43600,
-        followersGrowth: 15.2,
-        views: 180000,
-        engagement: 8.5
+        followers: 0,
+        followersGrowth: 0,
+        views: 0,
+        engagement: 0
     }
 };
 
-// Default Flagship Series database
-const DEFAULT_SERIES = [
-    {
-        name: "Startup Spotlight",
-        image: "linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)",
-        startDate: "2026-07-01",
-        endDate: "",
-        ongoing: true,
-        totalPublished: 12
-    },
-    {
-        name: "Incubator Spotlight",
-        image: "linear-gradient(135deg, #059669 0%, #047857 100%)",
-        startDate: "2026-07-01",
-        endDate: "",
-        ongoing: true,
-        totalPublished: 8
-    },
-    {
-        name: "FoundHer",
-        image: "linear-gradient(135deg, #db2777 0%, #be185d 100%)",
-        startDate: "2026-07-01",
-        endDate: "",
-        ongoing: true,
-        totalPublished: 5
-    },
-    {
-        name: "Startup Decode",
-        image: "linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)",
-        startDate: "2026-07-01",
-        endDate: "",
-        ongoing: true,
-        totalPublished: 9
-    }
-];
+// Default Flagship Series database (Empty by default)
+const DEFAULT_SERIES = [];
 
 // App State Management
 class ContentCalendarApp {
@@ -593,8 +269,8 @@ class ContentCalendarApp {
         this.seriesForm = document.getElementById("series-form");
         this.seriesModalClose = document.getElementById("series-modal-btn-close");
         this.seriesModalCancel = document.getElementById("series-modal-btn-cancel");
-        this.seriesImageFile = document.getElementById("series-image-file");
-        this.seriesImagePreview = document.getElementById("series-image-preview");
+        this.seriesImageFile = null;
+        this.seriesImagePreview = null;
         
         this.seriesStartDate = document.getElementById("series-start-date");
         this.seriesEndDate = document.getElementById("series-end-date");
@@ -604,7 +280,6 @@ class ContentCalendarApp {
         this.seriesFilterYear = document.getElementById("series-filter-year");
         
         // Exporter
-        this.btnReset = document.getElementById("btn-reset");
         this.btnExportJson = document.getElementById("export-json");
         this.btnExportCsv = document.getElementById("export-csv");
         
@@ -716,9 +391,6 @@ class ContentCalendarApp {
             }
         });
 
-        // Reset click
-        this.btnReset.addEventListener("click", () => this.resetToDefaults());
-
         // Export events
         this.btnExportJson.addEventListener("click", (e) => {
             e.preventDefault();
@@ -777,9 +449,7 @@ class ContentCalendarApp {
         if (this.seriesForm) {
             this.seriesForm.addEventListener("submit", (e) => this.handleSeriesFormSubmit(e));
         }
-        if (this.seriesImageFile) {
-            this.seriesImageFile.addEventListener("change", (e) => this.handleSeriesImageChange(e));
-        }
+
         
         // Add listeners for month/year filters & ongoing toggle
         if (this.seriesFilterMonth) {
@@ -931,22 +601,6 @@ class ContentCalendarApp {
         } catch (err) {
             console.error('[SAVE ERROR] Failed to save analytics:', err);
             alert('Failed to save analytics to server. Please check that the server is running.');
-        }
-    }
-
-    async resetToDefaults() {
-        if (confirm("Are you sure you want to reset all data to the original MeitY Startup Hub default content? Any edits you made will be lost.")) {
-            try {
-                const res = await fetch('/api/reset', { method: 'POST' });
-                const data = await res.json();
-                this.schedules = data.schedules;
-                this.series = data.series;
-                this.analytics = data.analytics;
-                this.populateSeriesDropdown();
-                this.render();
-            } catch (err) {
-                console.error("Error resetting data:", err);
-            }
         }
     }
 
@@ -1941,7 +1595,9 @@ class ContentCalendarApp {
         }
         
         // Clear file input
-        this.seriesImageFile.value = "";
+        if (this.seriesImageFile) {
+            this.seriesImageFile.value = "";
+        }
         
         // Set target image result to current image
         this.seriesForm.dataset.imageResult = s.image;
@@ -1973,34 +1629,33 @@ class ContentCalendarApp {
         }
     }
 
-    handleSeriesImageChange(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            if (this.seriesImagePreview) {
-                this.seriesImagePreview.style.display = "block";
-                this.seriesImagePreview.style.backgroundImage = `url(${event.target.result})`;
-            }
-            this.seriesForm.dataset.imageResult = event.target.result;
-        };
-        reader.readAsDataURL(file);
-    }
 
     async handleSeriesFormSubmit(e) {
         e.preventDefault();
         const name = document.getElementById("series-name").value.trim();
-        const image = this.seriesForm.dataset.imageResult || "";
+        let image = this.seriesForm.dataset.imageResult || "";
         
         const startDate = this.seriesStartDate.value;
         const ongoing = this.seriesOngoing.checked;
         const endDate = ongoing ? "" : this.seriesEndDate.value;
         const totalPublished = parseInt(this.seriesTotalPublished.value, 10) || 0;
 
-        if (!name || !image || !startDate || (!ongoing && !endDate)) {
+        if (!name || !startDate || (!ongoing && !endDate)) {
             alert("Please fill in all required fields.");
             return;
+        }
+
+        if (!image) {
+            const gradients = [
+                "linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)",
+                "linear-gradient(135deg, #059669 0%, #047857 100%)",
+                "linear-gradient(135deg, #db2777 0%, #be185d 100%)",
+                "linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)",
+                "linear-gradient(135deg, #ea580c 0%, #c2410c 100%)",
+                "linear-gradient(135deg, #0d9488 0%, #0f766e 100%)"
+            ];
+            const index = this.series ? this.series.length : 0;
+            image = gradients[index % gradients.length];
         }
 
         const seriesData = { name, image, startDate, endDate, ongoing, totalPublished };
