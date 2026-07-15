@@ -242,6 +242,10 @@ class ContentCalendarApp {
         this.formStatus = document.getElementById("form-status");
         this.btnDelete = document.getElementById("modal-btn-delete");
         
+        // Modal Links integration
+        this.modalLinksRow = document.getElementById("modal-links-row");
+        this.modalLinksContainer = document.getElementById("modal-links-inputs-container");
+        
         // Modals Buttons
         this.btnCloseModal = document.getElementById("modal-btn-close");
         this.btnCancelModal = document.getElementById("modal-btn-cancel");
@@ -275,7 +279,6 @@ class ContentCalendarApp {
         this.seriesStartDate = document.getElementById("series-start-date");
         this.seriesEndDate = document.getElementById("series-end-date");
         this.seriesOngoing = document.getElementById("series-ongoing");
-        this.seriesTotalPublished = document.getElementById("series-total-published");
         this.seriesFilterMonth = document.getElementById("series-filter-month");
         this.seriesFilterYear = document.getElementById("series-filter-year");
         
@@ -388,6 +391,24 @@ class ContentCalendarApp {
             } else {
                 this.customTypeRow.style.display = "none";
                 this.formCustomType.required = false;
+            }
+        });
+
+        // Modal Links conditional rendering triggers
+        if (this.formStatus) {
+            this.formStatus.addEventListener("change", () => this.updateModalLinksVisibility());
+        }
+        const platformCheckboxes = [
+            "platform-linkedin", "platform-twitter", "platform-instagram", "platform-facebook"
+        ];
+        platformCheckboxes.forEach(id => {
+            const checkbox = document.getElementById(id);
+            if (checkbox) {
+                checkbox.addEventListener("change", () => {
+                    if (this.formStatus && this.formStatus.value === "Published") {
+                        this.updateModalLinksInputs();
+                    }
+                });
             }
         });
 
@@ -560,9 +581,10 @@ class ContentCalendarApp {
                 throw new Error(`Server responded ${res.status}: ${errData.error || 'Unknown error'}`);
             }
             console.log(`[SAVE] Schedules saved (${this.schedules.length} items)`);
+            this.showToast("Content schedules successfully saved to server!");
         } catch (err) {
             console.error('[SAVE ERROR] Failed to save schedules:', err);
-            alert('Failed to save schedules to server. Please check that the server is running.');
+            this.showToast("Failed to save schedules to server.", "error");
         }
     }
 
@@ -579,9 +601,10 @@ class ContentCalendarApp {
                 throw new Error(`Server responded ${res.status}: ${errData.error || 'Unknown error'}`);
             }
             console.log(`[SAVE] Series saved (${this.series.length} items)`);
+            this.showToast("Flagship Series successfully saved to server!");
         } catch (err) {
             console.error('[SAVE ERROR] Failed to save series:', err);
-            alert('Failed to save series to server. Please check that the server is running.');
+            this.showToast("Failed to save series to server.", "error");
         }
     }
 
@@ -598,9 +621,10 @@ class ContentCalendarApp {
                 throw new Error(`Server responded ${res.status}: ${errData.error || 'Unknown error'}`);
             }
             console.log('[SAVE] Analytics saved');
+            this.showToast("Social Analytics metrics successfully updated!");
         } catch (err) {
             console.error('[SAVE ERROR] Failed to save analytics:', err);
-            alert('Failed to save analytics to server. Please check that the server is running.');
+            this.showToast("Failed to save analytics metrics.", "error");
         }
     }
 
@@ -686,6 +710,13 @@ class ContentCalendarApp {
         this.customTypeRow.style.display = "none";
         this.btnDelete.style.display = "none";
         
+        if (this.modalLinksRow) {
+            this.modalLinksRow.style.display = "none";
+        }
+        if (this.modalLinksContainer) {
+            this.modalLinksContainer.innerHTML = "";
+        }
+        
         this.modal.classList.add("active");
     }
 
@@ -730,6 +761,10 @@ class ContentCalendarApp {
         document.getElementById("platform-instagram").checked = item.platforms.includes("Instagram");
         document.getElementById("platform-facebook").checked = item.platforms.includes("Facebook");
 
+        // Load links for Published items inside modal
+        this.updateModalLinksVisibility();
+        this.updateModalLinksInputs(item.links || {});
+
         this.btnDelete.style.display = "inline-flex";
         this.modal.classList.add("active");
     }
@@ -760,16 +795,51 @@ class ContentCalendarApp {
         if (document.getElementById("platform-instagram").checked) platforms.push("Instagram");
         if (document.getElementById("platform-facebook").checked) platforms.push("Facebook");
 
+        // Get published links from modal if status is Published
+        const links = {};
+        if (status === "Published" && this.modalLinksContainer) {
+            const inputs = this.modalLinksContainer.querySelectorAll("input");
+            inputs.forEach(input => {
+                const platform = input.getAttribute("data-platform");
+                const value = input.value.trim();
+                if (value) {
+                    links[platform] = value;
+                }
+            });
+        }
+
         if (id) {
             // Edit existing
             const index = this.schedules.findIndex(s => s.id === id);
             if (index !== -1) {
-                this.schedules[index] = { id, date, contentType, topic, series, copy, status, platforms };
+                const existing = this.schedules[index];
+                
+                // Clean up links if any platforms were unchecked, and merge new inputs
+                const cleanedLinks = {};
+                platforms.forEach(p => {
+                    if (links[p]) {
+                        cleanedLinks[p] = links[p];
+                    } else if (existing.links && existing.links[p]) {
+                        cleanedLinks[p] = existing.links[p];
+                    }
+                });
+                
+                this.schedules[index] = { 
+                    ...existing, 
+                    date, 
+                    contentType, 
+                    topic, 
+                    series, 
+                    copy, 
+                    status, 
+                    platforms,
+                    links: cleanedLinks
+                };
             }
         } else {
             // Create new
             const newId = Date.now().toString();
-            this.schedules.push({ id: newId, date, contentType, topic, series, copy, status, platforms });
+            this.schedules.push({ id: newId, date, contentType, topic, series, copy, status, platforms, links });
         }
 
         await this.saveToStorage();
@@ -1102,10 +1172,17 @@ class ContentCalendarApp {
             const badgeClass = this.getBadgeClass(item.contentType);
             const statusClass = item.status.toLowerCase();
             
-            // Format Platforms as mini labels
+            // Format Platforms as mini labels (with links if they are published and links exist)
             const platformBadges = (item.platforms || []).map(p => {
                 const color = p === "LinkedIn" ? "#0a66c2" : p === "X/Twitter" ? "#000000" : p === "Instagram" ? "#e1306c" : "#1877f2";
                 const border = p === "X/Twitter" ? "rgba(255,255,255,0.15)" : "transparent";
+                
+                // If a published link exists for this platform, wrap in a clickable link
+                const url = item.links && item.links[p];
+                if (url) {
+                    return `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" style="display:inline-block; font-size: 0.65rem; background: ${color}; border: 1px solid ${border}; color: white; padding: 2px 5px; border-radius: 4px; margin-right: 3px; font-weight:600; text-decoration:none; transition: transform 0.2s;" title="View published link on ${p}">🔗 ${p}</a>`;
+                }
+                
                 return `<span style="display:inline-block; font-size: 0.65rem; background: ${color}; border: 1px solid ${border}; color: white; padding: 2px 5px; border-radius: 4px; margin-right: 3px; font-weight:600;">${p}</span>`;
             }).join("");
 
@@ -1250,6 +1327,21 @@ class ContentCalendarApp {
                     return `<span style="display:inline-block; font-size: 0.65rem; background: ${color}; border: 1px solid ${border}; color: white; padding: 2px 6px; border-radius: 4px; margin-right: 4px; font-weight:600;">${p}</span>`;
                 }).join("");
 
+                let linksHtml = "";
+                if (item.status === "Published" && item.links && Object.keys(item.links).length > 0) {
+                    linksHtml += `<div class="day-details-links" style="margin-top: 0.65rem; padding-top: 0.5rem; border-top: 1px dashed rgba(255,255,255,0.05); display: flex; flex-direction: column; gap: 0.35rem;">`;
+                    Object.entries(item.links).forEach(([platform, url]) => {
+                        const color = platform === "LinkedIn" ? "#60a5fa" : platform === "X/Twitter" ? "#ffffff" : platform === "Instagram" ? "#f472b6" : "#3b82f6";
+                        linksHtml += `
+                            <a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" style="font-size: 0.75rem; color: ${color}; text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem; word-break: break-all;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                <span style="font-weight: 600;">${platform}:</span> <span style="text-decoration: underline; opacity: 0.85;">${escapeHtml(url)}</span>
+                            </a>
+                        `;
+                    });
+                    linksHtml += `</div>`;
+                }
+
                 html += `
                     <div class="day-details-card" data-id="${item.id}">
                         <div class="day-details-main">
@@ -1261,6 +1353,7 @@ class ContentCalendarApp {
                             </div>
                             <p class="day-details-copy">${escapeHtml(item.copy || "No copy description provided.")}</p>
                             <div class="day-details-platforms">${platformBadges || '<span style="color: var(--text-dark); font-size:0.75rem;">No platforms selected</span>'}</div>
+                            ${linksHtml}
                         </div>
                         <div class="day-details-actions">
                             <button class="btn btn-secondary btn-sm btn-day-edit" data-id="${item.id}">
@@ -1506,25 +1599,9 @@ class ContentCalendarApp {
                             <span style="font-weight: 500; color: var(--text-secondary);">${formattedStart} - ${formattedEnd}</span>
                         </div>
 
-                        <div class="series-meta-new" style="display: flex; flex-direction: column; gap: 0.5rem; background: rgba(255,255,255,0.02); padding: 0.75rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.03); margin-top: 0.25rem;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem;">
-                                <span style="color: var(--text-muted);">Total Published:</span>
-                                <span style="font-weight: 600; color: var(--text-primary);">${s.totalPublished || 0} posts</span>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem;">
-                                <span style="color: var(--text-muted);">${selectedMonthName} Published:</span>
-                                <span style="font-weight: 600; color: #10b981;">${monthlyCount} posts</span>
-                            </div>
-                        </div>
-
-                        <div style="margin-top: 0.25rem;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.35rem;">
-                                <span>Monthly Target Progress</span>
-                                <span style="font-weight: 600; color: var(--text-secondary);">${Math.min(monthlyCount * 10, 100)}%</span>
-                            </div>
-                            <div class="series-progress-bar" style="height: 6px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden;">
-                                <div class="series-progress-fill" style="height: 100%; width: ${Math.min(monthlyCount * 10, 100)}%; background: ${s.image || 'var(--accent-primary)'}; border-radius: 4px;"></div>
-                            </div>
+                        <div class="series-meta-new" style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); padding: 0.75rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.03); margin-top: 0.5rem; font-size: 0.8rem;">
+                            <span style="color: var(--text-muted);">${selectedMonthName} Published:</span>
+                            <span style="font-weight: 600; color: #10b981;">${monthlyCount} posts</span>
                         </div>
                     </div>
                 </div>
@@ -1600,7 +1677,6 @@ class ContentCalendarApp {
             this.seriesEndDate.disabled = s.ongoing || false;
         }
         if (this.seriesOngoing) this.seriesOngoing.checked = s.ongoing || false;
-        if (this.seriesTotalPublished) this.seriesTotalPublished.value = s.totalPublished || 0;
         
         // Preview current image
         if (this.seriesImagePreview) {
@@ -1653,7 +1729,6 @@ class ContentCalendarApp {
         const startDate = this.seriesStartDate.value;
         const ongoing = this.seriesOngoing.checked;
         const endDate = ongoing ? "" : this.seriesEndDate.value;
-        const totalPublished = parseInt(this.seriesTotalPublished.value, 10) || 0;
 
         if (!name || !startDate || (!ongoing && !endDate)) {
             alert("Please fill in all required fields.");
@@ -1673,7 +1748,7 @@ class ContentCalendarApp {
             image = gradients[index % gradients.length];
         }
 
-        const seriesData = { name, image, startDate, endDate, ongoing, totalPublished };
+        const seriesData = { name, image, startDate, endDate, ongoing };
 
         if (this.activeSeriesIndex !== null && this.activeSeriesIndex !== undefined) {
             // Edit existing series
@@ -1707,6 +1782,113 @@ class ContentCalendarApp {
 
         // Re-render series tab
         this.renderSeries();
+    }
+
+    updateModalLinksVisibility() {
+        if (!this.modalLinksRow || !this.formStatus) return;
+        if (this.formStatus.value === "Published") {
+            this.modalLinksRow.style.display = "block";
+            this.updateModalLinksInputs();
+        } else {
+            this.modalLinksRow.style.display = "none";
+        }
+    }
+
+    updateModalLinksInputs(existingLinks = null) {
+        if (!this.modalLinksContainer) return;
+        
+        // Capture what is currently typed in the input fields before redrawing
+        const currentTyped = {};
+        this.modalLinksContainer.querySelectorAll("input").forEach(input => {
+            const platform = input.getAttribute("data-platform");
+            currentTyped[platform] = input.value.trim();
+        });
+        
+        this.modalLinksContainer.innerHTML = "";
+        
+        // Find checked platforms
+        const platforms = [];
+        if (document.getElementById("platform-linkedin").checked) platforms.push("LinkedIn");
+        if (document.getElementById("platform-twitter").checked) platforms.push("X/Twitter");
+        if (document.getElementById("platform-instagram").checked) platforms.push("Instagram");
+        if (document.getElementById("platform-facebook").checked) platforms.push("Facebook");
+        
+        if (platforms.length === 0) {
+            this.modalLinksContainer.innerHTML = `<span style="color: var(--text-muted); font-size: 0.8rem; grid-column: 1 / -1;">No platforms selected. Enable platforms above to add published URLs.</span>`;
+            return;
+        }
+        
+        platforms.forEach(platform => {
+            let url = "";
+            if (existingLinks && existingLinks[platform] !== undefined) {
+                url = existingLinks[platform];
+            } else if (currentTyped[platform] !== undefined) {
+                url = currentTyped[platform];
+            } else if (this.activeEventId) {
+                const item = this.schedules.find(s => s.id === this.activeEventId);
+                if (item && item.links && item.links[platform]) {
+                    url = item.links[platform];
+                }
+            }
+            
+            const color = platform === "LinkedIn" ? "#0a66c2" : platform === "X/Twitter" ? "#ffffff" : platform === "Instagram" ? "#e1306c" : "#1877f2";
+            
+            this.modalLinksContainer.insertAdjacentHTML("beforeend", `
+                <div class="link-input-group">
+                    <label class="link-input-label" style="color: ${platform === 'X/Twitter' ? '#e2e8f0' : color};">
+                        <span style="display:inline-block; width: 8px; height: 8px; border-radius:50%; background-color: ${platform === 'X/Twitter' ? '#ffffff' : color};"></span>
+                        ${platform} Link
+                    </label>
+                    <input type="url" 
+                           class="form-control modal-link-input" 
+                           data-platform="${platform}" 
+                           value="${escapeHtml(url)}" 
+                           placeholder="https://..."
+                           style="border-color: rgba(255,255,255,0.08);">
+                </div>
+            `);
+        });
+    }
+
+    showToast(message, type = "success") {
+        let container = document.getElementById("toast-container");
+        if (!container) {
+            container = document.createElement("div");
+            container.id = "toast-container";
+            document.body.appendChild(container);
+        }
+
+        const toast = document.createElement("div");
+        toast.className = `toast-notification ${type}`;
+
+        const checkIcon = type === "success" 
+            ? `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`
+            : `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+
+        toast.innerHTML = `
+            <span class="toast-icon">${checkIcon}</span>
+            <span class="toast-message">${escapeHtml(message)}</span>
+        `;
+
+        container.appendChild(toast);
+
+        // Force reflow
+        toast.offsetHeight;
+
+        // Animate in
+        toast.classList.add("active");
+
+        // Animate out and cleanup
+        setTimeout(() => {
+            toast.classList.remove("active");
+            toast.classList.add("hide");
+            
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 400);
+        }, 3000);
     }
 }
 
